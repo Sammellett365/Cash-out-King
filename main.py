@@ -101,10 +101,14 @@ if entry_mode == "Enter Manually":
         })
 
     # Placeholder for calculation or scenario logic
-    if st.button("Calculate Returns"):
-        st.success("🔢 Calculation logic goes here (connect to calculator.py)")
+   if st.button("Calculate Returns"):
+    scenario_summary = evaluate_bet_scenarios(
+        {"legs": bet_data},
+        stake=total_stake,
+        each_way=each_way
+    )
+    st.subheader("📊 Scenario Summary")
+    st.write(scenario_summary)
 
-    if st.button("Generate Scenario: All Legs Win"):
-        st.info("📈 Scenario logic goes here (connect to scenarios.py)")
 
 
