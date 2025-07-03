@@ -7,19 +7,17 @@ from scenarios.scenarios import (
 from config import DEFAULT_ODDS_FORMAT
 
 # --- SETTINGS PANEL ---
-with st.container():
-    col1, col2, col3 = st.columns([6, 1, 1])
-    with col3:
-        with st.expander("⚙️ Settings", expanded=False):
-            odds_format = st.radio(
-                "Select Odds Format",
-                ["Fractional", "Decimal"],
-                index=0 if DEFAULT_ODDS_FORMAT == "Fractional" else 1,
-                key="odds_format"
-            )
+with st.sidebar:
+    st.header("⚙️ Settings")
+    odds_format = st.radio(
+        "Select Odds Format",
+        ["Fractional", "Decimal"],
+        index=0 if DEFAULT_ODDS_FORMAT == "Fractional" else 1,
+        key="odds_format"
+    )
 
 # --- MAIN APP TITLE ---
-st.title("Betting Calculator")
+st.title("🎯 Betting Calculator")
 
 # --- ENTRY MODE SELECTION ---
 entry_mode = st.radio("Choose Entry Mode", ["Use OCR", "Enter Manually"])
@@ -42,17 +40,18 @@ bet_types = {
 if entry_mode == "Enter Manually":
     st.subheader("📋 Manual Bet Entry")
 
-    bet_type = st.selectbox("Select Bet Type", list(bet_types.keys()))
-    num_legs = bet_types[bet_type]
+    with st.expander("🔧 Bet Configuration", expanded=True):
+        bet_type = st.selectbox("Select Bet Type", list(bet_types.keys()))
+        num_legs = bet_types[bet_type]
 
-    each_way = st.checkbox("Each Way Bet?")
-    if each_way:
-        ew_terms = st.text_input("Place Terms (e.g. 1/5)", value="1/5")
-    else:
-        ew_terms = None
+        each_way = st.checkbox("Each Way Bet?")
+        if each_way:
+            ew_terms = st.text_input("Place Terms (e.g. 1/5)", value="1/5")
+        else:
+            ew_terms = None
 
-    stake_type = st.radio("Stake Type", ["Combined Stake", "Stake Per Bet"])
-    total_stake = st.number_input("Enter Total Stake", min_value=0.0, step=0.5)
+        stake_type = st.radio("Stake Type", ["Combined Stake", "Stake Per Bet"])
+        total_stake = st.number_input("Enter Total Stake (£)", min_value=0.0, step=0.5)
 
     st.markdown("### 🧾 Bet Details")
     bet_data = []
