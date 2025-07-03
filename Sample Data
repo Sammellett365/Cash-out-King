@@ -1,0 +1,8 @@
+{
+    "legs": [
+        {"event": "Match 1", "status": "won", "potential_win": 30},
+        {"event": "Match 2", "status": "void", "potential_win": 0},
+        {"event": "Match 3", "status": "pending", "potential_win": 70}
+    ]
+}
+
