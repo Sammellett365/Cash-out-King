@@ -1,72 +1,70 @@
 import streamlit as st
 
-# --- Helper Functions ---
-def get_bet_types():
-    return ["Singles", "Doubles", "Trebles", "Yankee", "Lucky 15", "Patent", "Trixie", "Canadian", "Heinz", "Super Heinz", "Goliath"]
+# Odds format selector at the top
+odds_format = st.selectbox("Select Odds Format", ["Fractional", "Decimal"])
 
-def get_leg_count(bet_type):
-    return {
+# Entry mode selection
+entry_mode = st.radio("Choose Entry Mode", ["Use OCR", "Enter Manually"])
+
+if entry_mode == "Enter Manually":
+    # Bet type selection
+    bet_type = st.selectbox("Select Bet Type", ["Singles", "Doubles", "Trebles", "Lucky 15", "Yankee", "Canadian", "Heinz", "Super Heinz", "Goliath"])
+
+    # Each Way option
+    each_way = st.checkbox("Each Way Bet")
+
+    # Stake type and input
+    stake_type = st.selectbox("Stake Type", ["Combined Stake", "Stake Per Bet"])
+    total_stake = st.number_input("Enter Total Stake", min_value=0.0, step=0.01)
+
+    # Determine number of legs based on bet type
+    bet_legs = {
         "Singles": 1,
         "Doubles": 2,
         "Trebles": 3,
-        "Yankee": 4,
         "Lucky 15": 4,
-        "Patent": 3,
-        "Trixie": 3,
+        "Yankee": 4,
         "Canadian": 5,
         "Heinz": 6,
         "Super Heinz": 7,
         "Goliath": 8
-    }.get(bet_type, 1)
+    }
+    num_legs = bet_legs.get(bet_type, 1)
 
-def get_result_options(each_way):
-    options = ["Won", "Lost", "Void / NR", "Unknown"]
+    st.subheader("Enter Bet Details")
+
+    # Default place terms
     if each_way:
-        options.insert(1, "Placed")
-    return options
+        place_terms = st.text_input("Place Terms (e.g., 1/5)", value="1/5")
 
-def get_result_color(result):
-    return {
-        "Won": "#d4edda",
-        "Placed": "#fff3cd",
-        "Lost": "#f8d7da",
-        "Void / NR": "#e2e3e5",
-        "Unknown": "#ffffff"
-    }.get(result, "#ffffff")
-
-# --- Streamlit App ---
-st.title("Betting Calculator")
-
-entry_mode = st.radio("Choose Entry Mode:", ["Use OCR", "Enter Manually"])
-
-if entry_mode == "Enter Manually":
-    st.subheader("Manual Bet Entry")
-
-    bet_type = st.selectbox("Select Bet Type:", get_bet_types())
-    each_way = st.checkbox("Each Way Bet?")
-    stake_type = st.radio("Stake Type:", ["Combined Stake", "Stake Per Bet"])
-    total_stake = st.number_input("Enter Total Stake:", min_value=0.0, step=0.01)
-
-    num_legs = get_leg_count(bet_type)
-    st.markdown(f"### Enter Details for {num_legs} Legs")
-
+    # Create dynamic table for bet legs
     for i in range(num_legs):
-        st.markdown(f"#### Leg {i+1}")
-        cols = st.columns([2, 2, 2, 2])
-        with cols[0]:
-            odds_format = st.radio(f"Odds Format (Leg {i+1})", ["Fractional", "Decimal"], key=f"odds_format_{i}")
-            odds = st.text_input(f"Odds (Leg {i+1})", key=f"odds_{i}")
-        with cols[1]:
-            if each_way:
-                place_terms = st.text_input(f"Place Terms (Leg {i+1})", key=f"place_{i}")
-            else:
-                st.markdown("Place Terms: N/A")
-        with cols[2]:
-            result = st.selectbox(f"Result (Leg {i+1})", get_result_options(each_way), key=f"result_{i}")
-        with cols[3]:
-            color = get_result_color(result)
-            st.markdown(f"<div style='background-color:{color};padding:10px;border-radius:5px;'>Result: {result}</div>", unsafe_allow_html=True)
+        st.markdown(f"### Leg {i+1}")
+        odds = st.text_input(f"Odds for Leg {i+1} ({odds_format})", key=f"odds_{i}")
+        if each_way:
+            st.text(f"Place Terms: {place_terms}")
+        result = st.radio(
+            f"Result for Leg {i+1}",
+            ["Won", "Placed", "Lost", "Void / NR", "Unknown"] if each_way else ["Won", "Lost", "Void / NR", "Unknown"],
+            key=f"result_{i}"
+        )
 
-st.markdown("---")
-st.info("This is a dynamic form. Based on your selections, the fields above will adapt accordingly.")
+        # Color coding based on result
+        result_colors = {
+            "Won": "#d4edda",
+            "Placed": "#fff3cd" if each_way else None,
+            "Lost": "#f8d7da",
+            "Void / NR": "#e2e3e5",
+            "Unknown": "#ffffff"
+        }
+        color = result_colors.get(result, "#ffffff")
+        st.markdown(
+            f"<div style='background-color:{color};padding:10px;'>Leg {i+1} Result: {result}</div>",
+            unsafe_allow_html=True
+        )
+
+# Clarification about result summaries
+st.info("🔍 Result summaries and calculations are handled in a separate module (e.g., calculator.py or scenarios.py). This interface is for data entry only.")
+
+
 
